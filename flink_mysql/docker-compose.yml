@@ -1,0 +1,81 @@
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
+    command:
+      --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+      --server-id=1
+      --log-bin=mysql-bin
+      --binlog-format=ROW
+      --binlog-row-image=FULL
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  flink:
+    image: flink:1.17-scala_2.12
+    container_name: flink
+    ports:
+      - "8081:8081"  # Flink Web UI
+    command: jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink
+    depends_on:
+      - mysql
+
+  taskmanager:
+    image: flink:1.17-scala_2.12
+    container_name: taskmanager
+    depends_on:
+      - flink
+    command: taskmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink
+    ports:
+      - "6121:6121"
+      - "6122:6122"
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  # kafka:
+  #   image: wurstmeister/kafka
+  #   container_name: kafka
+  #   ports:
+  #     - "9092:9092"
+  #     - "9093:9093"
+  #   environment:
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+  #     KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #     KAFKA_DELETE_TOPIC_ENABLE: 'true'
+  #   depends_on:
+  #     - zookeeper
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+    depends_on:
+      - zookeeper
+
+volumes:
+  mysql-data: 
