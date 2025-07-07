@@ -2,7 +2,7 @@ services:
   etcd1:
     image: quay.io/coreos/etcd:v3.5.15
     container_name: etcd1-work
-    restart: always
+    # restart: always
     ports:
       - "2379:2379"
       - "2380:2380"
@@ -23,7 +23,7 @@ services:
   etcd2:
     image: quay.io/coreos/etcd:v3.5.15
     container_name: etcd2-work
-    restart: always
+    # restart: always
     ports:
       - "2381:2379"
       - "2382:2380"
@@ -44,7 +44,7 @@ services:
   etcd3:
     image: quay.io/coreos/etcd:v3.5.15
     container_name: etcd3-work
-    restart: always
+    # restart: always
     ports:
       - "2383:2379"
       - "2384:2380"
@@ -65,7 +65,7 @@ services:
   mysql:
     image: mysql:5.7
     container_name: mysql-work
-    restart: always
+    # restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
     ports:
@@ -79,7 +79,7 @@ services:
   redis:
     image: redis:latest
     container_name: redis
-    restart: always
+    # restart: always
     ports:
       - "6379:6379"
     volumes:
@@ -91,7 +91,7 @@ services:
   nsqlookupd:
     image: nsqio/nsq:latest
     container_name: nsqlookupd
-    restart: always
+    # restart: always
     ports:
       - "4160:4160"
       - "4161:4161"
@@ -102,7 +102,7 @@ services:
   nsqd:
     image: nsqio/nsq:latest
     container_name: nsqd
-    restart: always
+    # restart: always
     depends_on:
       - nsqlookupd
     ports:
@@ -120,7 +120,7 @@ services:
   nsqadmin:
     image: nsqio/nsq:latest
     container_name: nsqadmin
-    restart: always
+    # restart: always
     depends_on:
       - nsqlookupd
     ports:
