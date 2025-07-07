@@ -1,0 +1,15 @@
+{
+    "builder" : {
+      "gc" : {
+        "defaultKeepStorage" : "100GB"
+      }
+    },
+    "ipv6" : true,
+    "proxies" : {
+      "http-proxy" : "http:\/\/127.0.0.1:7897",
+      "no-proxy" : "localhost,127.0.0.1",
+      "https-proxy" : "http:\/\/127.0.0.1:7897"
+    },
+    "debug" : true,
+    "experimental" : true
+  }
