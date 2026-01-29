@@ -1,0 +1,41 @@
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: postgres-vectors
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: vectors_db
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      # 数据持久化
+      - ./data/postgres:/var/lib/postgresql/data
+      # 配置文件挂载
+      - ./conf/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./conf/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      # 初始化脚本目录（用于自动执行迁移脚本）
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    command:
+      - "postgres"
+      - "-c"
+      - "config_file=/etc/postgresql/postgresql.conf"
+      - "-c"
+      - "hba_file=/etc/postgresql/pg_hba.conf"
+      - "-c"
+      - "shared_preload_libraries=vector,pg_bm25"
+    networks:
+      - postgres_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  postgres_network:
+    driver: bridge

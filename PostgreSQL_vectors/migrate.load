@@ -1,0 +1,23 @@
+LOAD DATABASE
+     FROM mysql://root:rootpassword@localhost:3306/ivanka_content
+     INTO postgresql://postgres:postgres@localhost:5432/vectors_db
+
+WITH include drop, create tables, create indexes, reset sequences
+
+SET maintenance_work_mem to '256MB',
+    work_mem to '128MB',
+    search_path to 'public'
+
+CAST 
+     -- 核心修复：显式匹配带长度的 tinyint 和 boolean 别名
+     type tinyint when (= 1 precision) to boolean drop typemod using tinyint-to-boolean,
+     type tinyint to boolean using tinyint-to-boolean,
+     
+     -- 处理时间
+     type datetime to timestamptz
+          drop default drop not null using zero-dates-to-null,
+     type date drop not null drop default using zero-dates-to-null,
+     
+     -- 其他转换
+     type year to integer
+;
